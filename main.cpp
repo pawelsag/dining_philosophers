@@ -1,10 +1,10 @@
 #include <fmt/format.h>
 #include <iostream>       // std::cin, std::cout
 #include <queue>          // std::queue
-#include "waiter.hpp"
+#include "table.hpp"
 
 int main ()
 {
+    so2::table inst;
     fmt::print("Hello!\n");
-    so2::waiter w_obj;
 }
