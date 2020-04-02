@@ -6,5 +6,10 @@
 int main ()
 {
     so2::table inst;
-    fmt::print("Hello!\n");
+    char c = '\0';
+    fmt::print("Type \'q\' to exit:\n");
+    while(c != 'q')
+    {
+        std::cin >> c;
+    }
 }

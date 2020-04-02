@@ -9,10 +9,23 @@ namespace so2
     {
         table()
         {
+            int id = 0;
             for(auto &ph : phs)
             {
-                ph = philosopher(this, &running);
+                ph =std::move(philosopher(this, &running, id++));
             }
+        }
+
+        bool can_acquire(int ph_id, const fork_set& f_ids)
+        {
+            return forks[f_ids.first].can_acquire(ph_id) &&
+                forks[f_ids.second].can_acquire(ph_id);
+        }
+
+        void acquire_forks(int ph_id, const fork_set& f_ids)
+        {
+            forks[f_ids.first].last_owner_id = ph_id;
+            forks[f_ids.second].last_owner_id = ph_id;
         }
 
         bool running=true;

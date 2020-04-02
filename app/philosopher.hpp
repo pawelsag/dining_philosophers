@@ -8,7 +8,7 @@
 
 namespace so2
 {
-    constexpr std::pair<int,int> calc_forks_ids(int id)
+    constexpr fork_set calc_forks_ids(int id)
     {
        return {id-1<0?config::forks_count-1:id-1, id}; 
     }
@@ -18,21 +18,24 @@ namespace so2
     {
         static inline std::mutex t_mutex = {};
         static inline std::condition_variable cv = {};
-        static inline int next_ph = 0;
-        philosopher() = default;
-        philosopher(table*, bool* is_active);
+        static inline bool dummy_active = false;
+
+        philosopher()= default;
+        philosopher(table*, bool* is_active, int id);
+        philosopher& operator=(philosopher&&);
+        ~philosopher();
         void think();
         bool try_eat();
         void run();
         
+        fork_set assigned_forks = calc_forks_ids(ph_id);
 
-        int ph_id = next_ph++;
-        std::pair<int,int> assigned_forks=calc_forks_ids(ph_id);
-        
-        table* parent; 
-        bool *is_active;
+        table *parent = nullptr; 
+        bool *is_active = &dummy_active ;
+        int ph_id = -1;
+
+        std::thread runner; 
     };
-
 }
 
 

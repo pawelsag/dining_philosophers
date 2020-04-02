@@ -12,4 +12,4 @@ include_directories(app)
 add_subdirectory(app)
 
 add_executable(${target} main.cpp ${app_src})
-target_link_libraries(${target} fmt) 
+target_link_libraries(${target} fmt pthread) 
