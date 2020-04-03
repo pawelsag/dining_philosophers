@@ -1,4 +1,6 @@
 #include <fmt/format.h>
+#include <iostream>       // std::cin, std::cout
+#include <queue>          // std::queue
 #include "table.hpp"
 #include <ncurses.h>
 
@@ -10,27 +12,14 @@ namespace config
 int main ()
 {
     so2::table inst;
+    std::thread display(&so2::table::update_results, &inst);
 
-    fd_set rfds;
-    struct timeval tv;
-    int retval = 0;
-
-   /* Watch stdin (fd 0) to see when it has input. */
-    FD_ZERO(&rfds);
-    FD_SET(0, &rfds);
-
-   /* Wait up to 2 seconds. */
-    tv.tv_sec = 2;
-    tv.tv_usec = 0;
-
+    char c = '\0';
     fmt::print("Type \'q\' to exit:\n");
-    
-    while(retval != 'q')
+    while(c != 'q')
     {
-        retval = select(1, &rfds, NULL, NULL, &tv);
-        inst.update_results();
-        std::this_thread::sleep_for(config::refresh_screen_interval);
+        std::cin >> c;
     }
-
     config::fin_signal = true;
+    display.join();
 }

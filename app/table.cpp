@@ -44,21 +44,26 @@ namespace so2
     
     void table::update_results()
     {
-        int off = 0;
-        for(const auto& ph : phs)
+        print_green(y_print_off-1,x_print_off,"Type \'q\' to exit" );
+        while(!config::fin_signal)
         {
-            const auto ph_id = ph.ph_id;
-            const auto ph_eatten = ph.eatten_count();
-            auto info = fmt::format("Ph {} have eatten {}",ph_id, ph_eatten);
-            if(ph_state_changed(ph_id, ph_eatten))
+            int off = 0;
+            for(const auto& ph : phs)
             {
-                print_green(y_print_off+off, x_print_off, info);
+                const auto ph_id = ph.ph_id;
+                const auto ph_eatten = ph.eatten_count();
+                auto info = fmt::format("Ph {} have eatten {}",ph_id, ph_eatten);
+                if(ph_state_changed(ph_id, ph_eatten))
+                {
+                    print_green(y_print_off+off, x_print_off, info);
+                }
+                else
+                {
+                    print_red(y_print_off+off, x_print_off, info);
+                }
+                off++;
             }
-            else
-            {
-                print_red(y_print_off+off, x_print_off, info);
-            }
-            off++;
+            std::this_thread::sleep_for(config::refresh_screen_interval);
         }
     }
 
