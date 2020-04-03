@@ -18,23 +18,29 @@ namespace so2
     {
         static inline std::mutex t_mutex = {};
         static inline std::condition_variable cv = {};
-        static inline bool dummy_active = false;
 
         philosopher()= default;
-        philosopher(table*, bool* is_active, int id);
+        philosopher(table*, int);
         philosopher& operator=(philosopher&&);
         ~philosopher();
+
         void think();
         bool try_eat();
         void run();
         
-        fork_set assigned_forks = calc_forks_ids(ph_id);
-
         table *parent = nullptr; 
-        bool *is_active = &dummy_active ;
-        int ph_id = -1;
+        const bool *fin_signal = &config::fin_signal;
 
-        std::thread runner; 
+        bool is_active = false;
+        int ph_id = -1;
+        size_t eatten_times = 0;
+        fork_set assigned_forks;
+        std::thread runner;
+
+        bool active()
+        {
+            return is_active && !*fin_signal;
+        }
     };
 }
 

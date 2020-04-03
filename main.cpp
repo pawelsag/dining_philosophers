@@ -2,6 +2,10 @@
 #include <iostream>       // std::cin, std::cout
 #include <queue>          // std::queue
 #include "table.hpp"
+namespace config
+{
+    bool fin_signal = false;
+}
 
 int main ()
 {
@@ -12,4 +16,5 @@ int main ()
     {
         std::cin >> c;
     }
+    config::fin_signal = true;
 }

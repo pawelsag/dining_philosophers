@@ -3,20 +3,27 @@
 #include<fmt/format.h>
 namespace so2
 {
-    philosopher::philosopher(table*t, bool *a, int p_id)
-    : parent(t), is_active(a), ph_id(p_id)
+    philosopher::philosopher(table *t, int id)
+    : parent(t), ph_id(id)
     {
-        fmt::print("Creating ph with id {}\n", ph_id);
+        assigned_forks = calc_forks_ids(ph_id);
+        is_active = true;
         runner = std::thread(&philosopher::run, this);
     }
 
     philosopher& philosopher::operator=(philosopher&& p)
     {
        ph_id = p.ph_id;
-       runner = std::move(p.runner);
        parent = p.parent;
-       p.parent = nullptr;
+       assigned_forks = std::move(p.assigned_forks);
        is_active = p.is_active;
+
+       p.is_active = false;
+       cv.notify_all();
+       p.runner.join();
+       p.parent = nullptr;
+
+       runner = std::thread(&philosopher::run, this);
        return *this;
     }
 
@@ -25,7 +32,7 @@ namespace so2
        std::unique_lock<std::mutex> lk(t_mutex);
        try
        {
-           cv.wait(lk, [&]{return parent->can_acquire(ph_id,assigned_forks);});
+           cv.wait(lk, [&]{return parent->can_acquire(ph_id,assigned_forks) || !active();});
        }catch(...)
        {
          fmt::print("Exception occured");
@@ -37,9 +44,12 @@ namespace so2
         if(std::try_lock(parent->forks[assigned_forks.first].fork_,
                 parent->forks[assigned_forks.second].fork_)!= false)
         {
-            parent->acquire_forks(ph_id, assigned_forks);
-            fmt::print("PH {} is eating", ph_id);
+            parent->mark_forks(ph_id, assigned_forks);
+            eatten_times++;
+            fmt::print("PH {} is eating nr {}\n", ph_id, eatten_times);
             std::this_thread::sleep_for(config::eating_time);
+            parent->forks[assigned_forks.first].fork_.unlock();
+            parent->forks[assigned_forks.second].fork_.unlock();
             return true;
         }
         return false;
@@ -47,7 +57,8 @@ namespace so2
 
     void philosopher::run()
     {
-        while(*is_active)
+        fmt::print("thread is running{}\n", ph_id);
+        while(active())
         {
             if(try_eat() == false)
             {
@@ -56,6 +67,7 @@ namespace so2
             }
             cv.notify_all();
         }
+        fmt::print("thread is leaving{}\n", ph_id);
     }
 
     philosopher::~philosopher()
@@ -64,14 +76,12 @@ namespace so2
         // do nothing here
         if(parent == nullptr)
             return;
-        // elsewhere terminate ph
-        bool is_active_ = false;
-        bool *old_ref = is_active; 
-        is_active = &is_active_;
 
+        is_active = false; 
+        cv.notify_all();
+       
         if(runner.joinable())
             runner.join();
-        is_active = old_ref; 
     }
 }
 

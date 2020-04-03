@@ -8,4 +8,6 @@ namespace config
     constexpr int forks_count = ph_count;
     constexpr auto eating_time = ms(1000); 
     constexpr auto thinking_time = ms(1000);
+
+    extern bool fin_signal;
 }
