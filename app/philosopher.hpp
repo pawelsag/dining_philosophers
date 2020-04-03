@@ -33,14 +33,20 @@ namespace so2
 
         bool is_active = false;
         int ph_id = -1;
-        size_t eatten_times = 0;
         fork_set assigned_forks;
         std::thread runner;
 
-        bool active()
+        bool active() const
         {
             return is_active && !*fin_signal;
         }
+        size_t eatten_count() const
+        {
+            return eatten_times.load();
+        }
+
+        private:
+            std::atomic<size_t> eatten_times = 0;
     };
 }
 

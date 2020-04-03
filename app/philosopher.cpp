@@ -46,7 +46,6 @@ namespace so2
         {
             parent->mark_forks(ph_id, assigned_forks);
             eatten_times++;
-            fmt::print("PH {} is eating nr {}\n", ph_id, eatten_times);
             std::this_thread::sleep_for(config::eating_time);
             parent->forks[assigned_forks.first].fork_.unlock();
             parent->forks[assigned_forks.second].fork_.unlock();
@@ -57,7 +56,6 @@ namespace so2
 
     void philosopher::run()
     {
-        fmt::print("thread is running{}\n", ph_id);
         while(active())
         {
             if(try_eat() == false)
@@ -67,7 +65,6 @@ namespace so2
             }
             cv.notify_all();
         }
-        fmt::print("thread is leaving{}\n", ph_id);
     }
 
     philosopher::~philosopher()

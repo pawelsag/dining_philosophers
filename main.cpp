@@ -2,6 +2,8 @@
 #include <iostream>       // std::cin, std::cout
 #include <queue>          // std::queue
 #include "table.hpp"
+#include <ncurses.h>
+
 namespace config
 {
     bool fin_signal = false;
