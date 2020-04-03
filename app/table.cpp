@@ -4,7 +4,6 @@ namespace so2
 {
     constexpr int y_print_off = 10;
     constexpr int x_print_off = 10;
-
     table::table()
     {
         init_ncurses();
@@ -45,6 +44,9 @@ namespace so2
     void table::update_results()
     {
         print_green(y_print_off-1,x_print_off,"Type \'q\' to exit" );
+        std::string empty_bar = "                                       ";
+        std::string bar       = "#######################################";
+        auto bar_len = empty_bar.length(); 
         while(!config::fin_signal)
         {
             int off = 0;
@@ -52,7 +54,16 @@ namespace so2
             {
                 const auto ph_id = ph.ph_id;
                 const auto ph_eatten = ph.eatten_count();
-                auto info = fmt::format("Ph {} have eatten {}",ph_id, ph_eatten);
+                const double progress = (double(ph_eatten))/config::eatting_goal;
+
+                const auto empty_bar_len = bar_len*progress;
+                auto info = fmt::format("Ph {:<4} have eatten {:<15}|{}{}| {}%",
+                        ph_id,
+                        fmt::format("{}/{}",ph_eatten,config::eatting_goal),
+                        bar.substr(0,empty_bar_len),
+                        empty_bar.substr(0,bar_len - empty_bar_len),
+                        int(progress*100));
+
                 if(ph_state_changed(ph_id, ph_eatten))
                 {
                     print_green(y_print_off+off, x_print_off, info);

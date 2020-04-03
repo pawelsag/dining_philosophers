@@ -56,7 +56,7 @@ namespace so2
 
     void philosopher::run()
     {
-        while(active())
+        while(active() && eatten_times < config::eatting_goal)
         {
             if(try_eat() == false)
             {

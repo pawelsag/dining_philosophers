@@ -13,9 +13,8 @@ int main ()
 {
     so2::table inst;
     std::thread display(&so2::table::update_results, &inst);
-
+    
     char c = '\0';
-    fmt::print("Type \'q\' to exit:\n");
     while(c != 'q')
     {
         std::cin >> c;
