@@ -15,9 +15,9 @@
 
 ## Usage
 Just run `./so_app`. When you want to quit press 'q'.
-When you want to configure application, see `config.hpp` file.
+When you want to configure application, see `app/config.hpp` file.
 There you can find some variables which you can simply modify.
-Save changes recompile and see results.
+Save changes, recompile and see results.
 
 ## Samples
 ![Running](img/in_progress.png)
