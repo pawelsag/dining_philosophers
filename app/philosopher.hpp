@@ -31,7 +31,7 @@ namespace so2
         table *parent = nullptr; 
         const bool *fin_signal = &config::fin_signal;
 
-        bool is_active = false;
+        std::atomic<bool> is_active = false;
         int ph_id = -1;
         fork_set assigned_forks;
         std::thread runner;

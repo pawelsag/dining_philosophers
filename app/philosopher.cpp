@@ -16,10 +16,12 @@ namespace so2
        ph_id = p.ph_id;
        parent = p.parent;
        assigned_forks = std::move(p.assigned_forks);
-       is_active = p.is_active;
+       is_active = p.is_active.load();
 
        p.is_active = false;
-       cv.notify_all();
+       while(!p.runner.joinable())
+        cv.notify_all();
+
        p.runner.join();
        p.parent = nullptr;
 
@@ -32,7 +34,8 @@ namespace so2
        std::unique_lock<std::mutex> lk(t_mutex);
        try
        {
-           cv.wait(lk, [&]{return parent->can_acquire(ph_id,assigned_forks) || !active();});
+           cv.wait(lk, [&]{return parent->can_acquire(ph_id, assigned_forks) 
+                   || !active();});
        }catch(...)
        {
          fmt::print("Exception occured");
@@ -42,7 +45,8 @@ namespace so2
     bool philosopher::try_eat()
     {
         if(std::try_lock(parent->forks[assigned_forks.first].fork_,
-                parent->forks[assigned_forks.second].fork_)!= false)
+                parent->forks[assigned_forks.second].fork_)!= false
+                && eatten_times < config::eatting_goal)
         {
             parent->mark_forks(ph_id, assigned_forks);
             eatten_times++;
@@ -56,7 +60,7 @@ namespace so2
 
     void philosopher::run()
     {
-        while(active() && eatten_times < config::eatting_goal)
+        while(active())
         {
             if(try_eat() == false)
             {
@@ -74,11 +78,11 @@ namespace so2
         if(parent == nullptr)
             return;
 
-        is_active = false; 
+       is_active = false;
+       while(!runner.joinable())
         cv.notify_all();
        
-        if(runner.joinable())
-            runner.join();
+       runner.join();
     }
 }
 
